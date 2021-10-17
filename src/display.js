@@ -80,12 +80,34 @@ export default class Display {
         let base_cell_width = this.computed_config.pagewidth/this.config.grids.width
         //create new elements
         this.datagrid.nodes.forEach(elem => {
+
+            let x = this.config.pagemargins.left+elem.grid_x*base_cell_width+this.config.space/2.0
+            let y = this.config.pagemargins.top+elem.grid_y*base_cell_height+this.config.space/2.0
+            let height = base_cell_height*elem.grid_height-this.config.space
+            let width = base_cell_width*elem.grid_width-this.config.space
+            //if this is uncommented, the edges will fit the page - but Im not so fond of it
+            /*
+            if (elem.grid_x == 0) {
+                x -= this.config.space/2.0
+                width += this.config.space/2.0
+            }
+            if (elem.grid_y == 0) {
+                y -= this.config.space/2.0
+                height += this.config.space/2.0
+            }
+            if (elem.grid_x+elem.grid_width == this.config.grids.width) {
+                width += this.config.space/2.0
+            }
+            if (elem.grid_y+elem.grid_height == this.config.grids.height) {
+                height += this.config.space/2.0
+            }
+            */
             let d3_rect = this.elems.page.append("rect")
             elem.d3_object = d3_rect
-            d3_rect.attr("x",this.config.pagemargins.left+elem.grid_x*base_cell_width+this.config.space/2.0)
-                .attr("y",this.config.pagemargins.top+elem.grid_y*base_cell_height+this.config.space/2.0)
-                .attr("height",base_cell_height*elem.grid_height-this.config.space)
-                .attr("width",base_cell_width*elem.grid_width-this.config.space)
+            d3_rect.attr("x",x)
+                .attr("y",y)
+                .attr("height",height)
+                .attr("width",width)
                 .attr("fill","none")
                 .attr("stroke-width",this.config.linewidth)
                 .attr("stroke","black")
@@ -222,7 +244,9 @@ export default class Display {
     }
 }
 
-//TODO: add edges - they should always connect two nodes, and only two
-//  mergeability should be checked if the nodes have the matching x/y width/height depending on if they are horizontal/vertical
-
-//TODO: make a proper git project out of it 
+//TODO: 
+//  1. add edges - they should always connect two nodes, and only two
+//      mergeability should be checked if the nodes have the matching x/y width/height depending on if they are horizontal/vertical
+//  2. split constructor  into proper re-launchable classes/functions <so that config can be changed and stuff be reloaded>
+//  3. nake edge cells fit into the page frame (without spaces)
+//  4. create a display with 
