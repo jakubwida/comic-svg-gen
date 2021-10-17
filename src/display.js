@@ -2,30 +2,52 @@ import * as d3 from 'd3'
 import * as unitsCss from "units-css"
 
 export default class Display {
-    constructor(root_elem_selector) {
+    constructor(root_elem_selector,config) {
+        this.root_elem_selector = root_elem_selector
+        this._load_config(config)
+        this._draw_basics()
+        this._create_datagrid()
+        this.update_displayed_table()
+    }
+
+    _create_datagrid() {
+        this.datagrid = {}
+        this.datagrid.nodes = [{
+            grid_x:0,
+            grid_y:0,
+            grid_width:this.config.grids.width,
+            grid_height:this.config.grids.height,
+            d3_object:null
+        }]
+        this.datagrid.edges = []
+        this.datagrid.divlines = []
+    }
+
+    _load_config(config){
         this.config = {}
         this.config.pagemargins = {
-            top:unitsCss.convert("px","0.5cm"),
-            bottom:unitsCss.convert("px","1.5cm"),
-            left:unitsCss.convert("px","0.5cm"),
-            right:unitsCss.convert("px","0.5cm")}
+            top:unitsCss.convert("px",config.pagemargins.top),
+            bottom:unitsCss.convert("px",config.pagemargins.bottom),
+            left:unitsCss.convert("px",config.pagemargins.left),
+            right:unitsCss.convert("px",config.pagemargins.right)}
         this.config.pagesize = {
-            width:unitsCss.convert("px","21cm"), 
-            height:unitsCss.convert("px","29.7cm")
+            width:unitsCss.convert("px",config.pagesize.width), 
+            height:unitsCss.convert("px",config.pagesize.height)
         }
-        this.config.grids = {width:3,height:3}
-        this.config.space = unitsCss.convert("px","0.5cm")
-        this.config.linewidth = unitsCss.convert("px","0.1cm")     
+        this.config.grids = {width:config.grids.width,height:config.grids.height}
+        this.config.space = unitsCss.convert("px",config.space)
+        this.config.linewidth = unitsCss.convert("px",config.linewidth)     
 
         this.computed_config = {
             pageheight:this.config.pagesize.height -this.config.pagemargins.top - this.config.pagemargins.bottom,
             pagewidth:this.config.pagesize.width -this.config.pagemargins.left - this.config.pagemargins.right
         }
+    }
 
-
+    _draw_basics(){
         this.elems = {}
-
-        this.elems.page = d3.select(root_elem_selector).append("svg")
+        d3.select(this.root_elem_selector).selectAll().remove()
+        this.elems.page = d3.select(this.root_elem_selector).append("svg")
         this.elems.page
             .attr("width",this.config.pagesize.width)
             .attr("height",this.config.pagesize.height)
@@ -46,30 +68,12 @@ export default class Display {
             .attr("stroke-dasharray","5,5")
             .attr("stroke","grey")
 
-        this.elems.donwloadbutton = d3.select(root_elem_selector).append("button")
+        this.elems.donwloadbutton = d3.select(this.root_elem_selector).append("button")
             this.elems.donwloadbutton
             .html("download")
             .on("click",()=>{
                 this.export()
-            })
-
-
-
-        this.datagrid = {}
-        this.datagrid.nodes = [{
-            grid_x:0,
-            grid_y:0,
-            grid_width:this.config.grids.width,
-            grid_height:this.config.grids.height,
-            d3_object:null
-        }]
-        this.datagrid.edges = []
-        this.datagrid.divlines = []
-
-        this.update_displayed_table()
-        //we need an engine to have a data structure with table containing merged elements which is translated onto the display 
-        //and the displayed elements have to be chekcable so that they can be merged/split
-
+            })       
     }
 
     update_displayed_table() {
