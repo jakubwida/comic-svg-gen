@@ -1,26 +1,14 @@
 import * as d3 from 'd3'
 import * as unitsCss from "units-css"
+import Datagrid from './datagrid'
 
 export default class Display {
     constructor(root_elem_selector,config) {
         this.root_elem_selector = root_elem_selector
         this._load_config(config)
         this._draw_basics()
-        this._create_datagrid()
+        this.datagrid = new Datagrid(this)
         this.update_displayed_table()
-    }
-
-    _create_datagrid() {
-        this.datagrid = {}
-        this.datagrid.nodes = [{
-            grid_x:0,
-            grid_y:0,
-            grid_width:this.config.grids.width,
-            grid_height:this.config.grids.height,
-            d3_object:null
-        }]
-        this.datagrid.edges = []
-        this.datagrid.divlines = []
     }
 
     _load_config(config){
@@ -123,7 +111,6 @@ export default class Display {
                  let ypos = this.config.pagemargins.top+elem.grid_y*base_cell_height+this.config.space/2.0
                  let length = base_cell_height*elem.grid_height-this.config.space
                  let divline = this.elems.page.append("line")
-                 this.datagrid.divlines.push(divline)
                  divline.attr("x1",xpos)
                     .attr("x2",xpos)
                     .attr("y1",ypos)
@@ -147,7 +134,6 @@ export default class Display {
                 let xpos = this.config.pagemargins.left+elem.grid_x*base_cell_width+this.config.space/2.0
                 let length = base_cell_width*elem.grid_width-this.config.space
                 let divline = this.elems.page.append("line")
-                this.datagrid.divlines.push(divline)
                 divline.attr("x1",xpos)
                    .attr("x2",xpos+length)
                    .attr("y1",ypos)
@@ -168,69 +154,8 @@ export default class Display {
         });   
         //TODO edges     
     }
-
-    divide_node(node,dohorizontally,grid_pos) {
-        console.log("divide node"+dohorizontally+" "+grid_pos)
-
-        //removing old node
-        let elemindex = this.datagrid.nodes.indexOf(node)
-        this.datagrid.nodes.splice(elemindex,1)
-        //inserting new nodes 
-        if (dohorizontally) {
-            let y1 = node.grid_y
-            let x1 = node.grid_x 
-            let height1 = grid_pos
-            let width1 = node.grid_width
-
-            let y2 = node.grid_y + grid_pos
-            let x2 = node.grid_x 
-            let height2 = node.grid_height - grid_pos
-            let width2 = node.grid_width
-
-            
-            this.datagrid.nodes.push({
-                grid_x:x1,
-                grid_y:y1,
-                grid_width:width1,
-                grid_height:height1,
-                d3_object:null
-            })
-            this.datagrid.nodes.push({
-                grid_x:x2,
-                grid_y:y2,
-                grid_width:width2,
-                grid_height:height2,
-                d3_object:null
-            })
-        }
-        else {
-            let y1 = node.grid_y
-            let x1 = node.grid_x 
-            let height1 = node.grid_height
-            let width1 = grid_pos
-
-            let y2 = node.grid_y 
-            let x2 = node.grid_x + grid_pos
-            let height2 = node.grid_height 
-            let width2 = node.grid_width - grid_pos
-
-            this.datagrid.nodes.push({
-                grid_x:x1,
-                grid_y:y1,
-                grid_width:width1,
-                grid_height:height1,
-                d3_object:null
-            })
-            this.datagrid.nodes.push({
-                grid_x:x2,
-                grid_y:y2,
-                grid_width:width2,
-                grid_height:height2,
-                d3_object:null
-            })
-        }
-        //TODO edges
-        console.log(this.datagrid.nodes)
+    divide_node(node,ishorizontal,grid_pos) {
+        this.datagrid.divide_node(node,ishorizontal,grid_pos)
         this.update_displayed_table()
     }
 
